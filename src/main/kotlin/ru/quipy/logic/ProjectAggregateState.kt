@@ -1,6 +1,5 @@
 package ru.quipy.logic
 
-import org.jetbrains.annotations.NotNull
 import ru.quipy.api.*
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
@@ -53,19 +52,31 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
                 ?: throw IllegalArgumentException("No such task: ${event.taskId}")
         updatedAt = event.createdAt
     }
+
+    @StateTransitionFunc
+    fun statusChangedApply(event: TaskStatusChangedEvent) {
+        tasks[event.taskId]?.statusEnum = StatusEnum.values()[event.newStatus]
+    }
 }
 
 data class TaskEntity(
         val id: UUID = UUID.randomUUID(),
         val name: String,
         val tagsAssigned: MutableSet<UUID>,
-        val executorsAssigned: MutableSet<UUID>
+        val executorsAssigned: MutableSet<UUID>,
+        var statusEnum: StatusEnum = StatusEnum.OPENED
 )
 
 data class TagEntity(
         val id: UUID = UUID.randomUUID(),
         val name: String
 )
+
+enum class StatusEnum(description: String){
+    OPENED("Opened"),
+    IN_PROGRESS("In progress"),
+    CLOSED("Closed");
+}
 
 /**
  * Demonstrates that the transition functions might be representer by "extension" functions, not only class members functions

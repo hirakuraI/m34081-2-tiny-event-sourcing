@@ -10,6 +10,7 @@ const val TAG_ASSIGNED_TO_TASK_EVENT = "TAG_ASSIGNED_TO_TASK_EVENT"
 const val TASK_CREATED_EVENT = "TASK_CREATED_EVENT"
 const val MEMBER_ADDED_EVENT = "MEMBER_ADDED_EVENT"
 const val EXECUTOR_ASSIGNED_TO_TASK_EVENT = "EXECUTOR_ASSIGNED_TO_TASK_EVENT"
+const val TASK_STATUS_CHANGED_EVENT = "TASK_STATUS_CHANGED_EVENT"
 
 // API
 @DomainEvent(name = PROJECT_CREATED_EVENT)
@@ -73,5 +74,16 @@ class ExecutorAssignedToTaskEvent(
         createdAt: Long = System.currentTimeMillis()
 ) : Event<ProjectAggregate>(
         name = EXECUTOR_ASSIGNED_TO_TASK_EVENT,
+        createdAt = createdAt
+)
+
+@DomainEvent(name = TASK_STATUS_CHANGED_EVENT)
+class TaskStatusChangedEvent(
+        val projectId: UUID,
+        val taskId: UUID,
+        val newStatus: Int,
+        createdAt: Long = System.currentTimeMillis()
+) : Event<ProjectAggregate>(
+        name = TASK_STATUS_CHANGED_EVENT,
         createdAt = createdAt
 )

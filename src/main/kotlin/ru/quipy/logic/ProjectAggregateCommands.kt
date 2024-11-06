@@ -47,6 +47,18 @@ fun ProjectAggregateState.addMember(userId: UUID): MemberAddedEvent{
     return MemberAddedEvent(projectId = this.getId(), userId = userId)
 }
 
+fun ProjectAggregateState.changeStatus(taskId: UUID, newStatus: Int): TaskStatusChangedEvent{
+    if (!tasks.containsKey(taskId)) {
+        throw IllegalArgumentException("Task doesn't exists: $taskId")
+    }
+
+    if (StatusEnum.values().size < newStatus) {
+        throw IllegalArgumentException("Status out of range: $newStatus")
+    }
+
+    return TaskStatusChangedEvent(projectId = this.getId(), taskId = taskId, newStatus = newStatus)
+}
+
 fun ProjectAggregateState.addExecutor(taskId: UUID, executorId: UUID): ExecutorAssignedToTaskEvent{
     if (!tasks.containsKey(taskId)) {
         throw IllegalArgumentException("Task doesn't exists: $taskId")
