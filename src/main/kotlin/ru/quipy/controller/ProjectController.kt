@@ -1,15 +1,19 @@
 package ru.quipy.controller
 
+import liquibase.hub.model.Project
 import org.springframework.web.bind.annotation.*
 import ru.quipy.api.*
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.*
+import ru.quipy.projections.ProjectProjection
+import ru.quipy.service.ProjectionService
 import java.util.*
 
 @RestController
 @RequestMapping("/projects")
 class ProjectController(
-        val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>
+    val projectEsService: EventSourcingService<UUID, ProjectAggregate, ProjectAggregateState>,
+    val projectionService: ProjectionService,
 ) {
 
     @PostMapping("/{projectTitle}")
@@ -42,7 +46,11 @@ class ProjectController(
     }
 
     @PutMapping("/{projectId}/tasks/{taskId}")
-    fun changeStatus(@PathVariable projectId: UUID, @PathVariable taskId: UUID, @RequestParam newStatus: Int): TaskStatusChangedEvent {
+    fun changeStatus(
+        @PathVariable projectId: UUID,
+        @PathVariable taskId: UUID,
+        @RequestParam newStatus: Int
+    ): TaskStatusChangedEvent {
         return projectEsService.update(projectId) {
             it.changeStatus(taskId, newStatus)
         }
@@ -56,4 +64,13 @@ class ProjectController(
         }
     }
 
+    @GetMapping("/owner/{ownerId}")
+    fun findAllByOwnerId(@PathVariable ownerId: UUID): List<ProjectProjection> {
+        return projectionService.findAllProjectsByOwnerId(ownerId)
+    }
+
+    @GetMapping("/participating/{participantId}")
+    fun findAllByParticipantId(@PathVariable participantId: UUID): List<ProjectProjection> {
+        return projectionService.findAllProjectByParticipantIdContains(participantId)
+    }
 }
